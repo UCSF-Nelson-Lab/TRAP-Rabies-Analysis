@@ -91,7 +91,7 @@ for i = 1:length(groups)
         end
     end
 end
-%% Summary Structs: compile summary data following colocalized normalization for each mouse (quantification used for Figure 2, S2)
+%% Summary Structs: compile summary data following colocalization and brainwide normalization for each mouse (quantification used for Figure 2, S2)
 groups = fieldnames(Rabies);
 brain_regions = {[],[];'Brain Region','Hemisphere';'root','left';'root','right';'Cerebral cortex','left';'Cerebral cortex','right';'Somatomotor areas','left';'Somatomotor areas','right';'Primary motor area','left';'Primary motor area','right';'Secondary motor area','left';'Secondary motor area','right';'Somatosensory areas','left';'Somatosensory areas','right';'Primary somatosensory area','left';'Primary somatosensory area','right';'Primary somatosensory area/ nose','right';'Primary somatosensory area/ barrel field','right';'Primary somatosensory area/ lower limb','right';'Primary somatosensory area/ mouth','right';'Primary somatosensory area/ upper limb','right';'Primary somatosensory area/ trunk','right';'Supplemental somatosensory area','right';'Gustatory areas','right';'Visceral area','right';'Anterior cingulate area','left';'Anterior cingulate area','right';'Anterior cingulate area/ dorsal part','right';'Anterior cingulate area/ ventral part','right';'Orbital area','left';'Orbital area','right';'Agranular insular area','left';'Agranular insular area','right';'Olfactory areas','right';'Striatum','right';'Central amygdalar nucleus','right';'Globus pallidus/ external segment','right';'Pallidum/ ventral region','right';'Thalamus','right';'Ventral group of the dorsal thalamus','right';'Ventral medial nucleus of the thalamus','right';'Thalamus/ polymodal association cortex related','right';'Intralaminar nuclei of the dorsal thalamus','right';'Central medial nucleus of the thalamus','right';'Paracentral nucleus','right';'Parafascicular nucleus','right';'Substantia nigra/ reticular part','right';'Midbrain raphe nuclei','right';'Dorsal nucleus raphe','right';'Primary auditory area','right';'Primary visual area','right';'Prelimbic area','right';'Infralimbic area','right';'Posterior parietal association areas','right';'Piriform area','right';'Hippocampal formation','right';'Lateral amygdalar nucleus','left';'Lateral amygdalar nucleus','right';'Basolateral amygdalar nucleus','left';'Basolateral amygdalar nucleus','right';'Striatum dorsal region','left';'Striatum dorsal region','right';'Striatum ventral region','left';'Striatum ventral region','right';'Nucleus accumbens','left';'Nucleus accumbens','right';'Anterior amygdalar area','left';'Anterior amygdalar area','right';'Central amygdalar nucleus','left';'Central amygdalar nucleus','right';'Medial amygdalar nucleus','left';'Medial amygdalar nucleus','right';'Pallidum','left';'Pallidum','right';'Pallidum/ dorsal region','left';'Pallidum/ dorsal region','right';'Globus pallidus/ internal segment','left';'Globus pallidus/ internal segment','right';'Bed nuclei of the stria terminalis','left';'Bed nuclei of the stria terminalis','right';'Medial habenula','left';'Medial habenula','right';'Lateral habenula','left';'Lateral habenula','right';'Hypothalamus','left';'Hypothalamus','right';'Subthalamic nucleus','left';'Subthalamic nucleus','right';'Zona incerta','left';'Zona incerta','right';'Ventral tegmental area','left';'Ventral tegmental area','right';'Substantia nigra/ compact part','left';'Substantia nigra/ compact part','right';'Cerebellum','left';'Cerebellum','right';'Cerebellar nuclei','left';'Cerebellar nuclei','right'};
 
@@ -118,6 +118,29 @@ end
 %save to Summary struct
 Rabies_Summary.Coloc_Normalized.data = Coloc_Normalized_Summary;
 
+Brainwide_Normalized_Summary = brain_regions;
+
+for i = 1:length(groups)
+    animals = fieldnames(Rabies.(groups{i}));
+    for a = 1:length(animals)
+        try
+            animal = Rabies.(groups{i}).(animals{a});
+            summary_column = size(Brainwide_Normalized_Summary,2)+1;
+            Brainwide_Normalized_Summary{1,summary_column} = groups{i};
+            Brainwide_Normalized_Summary{2,summary_column} = animals{a};
+
+            for j = 2:(length(Brainwide_Normalized_Summary)-1)
+                Brainwide_Normalized_Summary{j+1,summary_column} = [animal.nonstr_red_normalized_data{j,3}];
+            end
+        catch
+            sprintf('Animal did not meet inclusion criteria')
+        end
+    end
+end
+
+%save to Summary struct
+Rabies_Summary.Brainwide_Normalized.data = Brainwide_Normalized_Summary;
+
 %% Group Stats
 D1_Healthy_columns = find(strcmp('D1_Healthy',[Coloc_Normalized_Summary(1,1:size(Coloc_Normalized_Summary,2))]));
 D1_6OHDA_columns = find(strcmp('D1_6OHDA',[Coloc_Normalized_Summary(1,1:size(Coloc_Normalized_Summary,2))]));
@@ -129,6 +152,7 @@ TRAP_LID_columns = find(strcmp('TRAP_LID',[Coloc_Normalized_Summary(1,1:size(Col
 
 brain_regions = {'Brain Region','Hemisphere';'root','left';'root','right';'Cerebral cortex','left';'Cerebral cortex','right';'Somatomotor areas','left';'Somatomotor areas','right';'Primary motor area','left';'Primary motor area','right';'Secondary motor area','left';'Secondary motor area','right';'Somatosensory areas','left';'Somatosensory areas','right';'Primary somatosensory area','left';'Primary somatosensory area','right';'Primary somatosensory area/ nose','right';'Primary somatosensory area/ barrel field','right';'Primary somatosensory area/ lower limb','right';'Primary somatosensory area/ mouth','right';'Primary somatosensory area/ upper limb','right';'Primary somatosensory area/ trunk','right';'Supplemental somatosensory area','right';'Gustatory areas','right';'Visceral area','right';'Anterior cingulate area','left';'Anterior cingulate area','right';'Anterior cingulate area/ dorsal part','right';'Anterior cingulate area/ ventral part','right';'Orbital area','left';'Orbital area','right';'Agranular insular area','left';'Agranular insular area','right';'Olfactory areas','right';'Striatum','right';'Central amygdalar nucleus','right';'Globus pallidus/ external segment','right';'Pallidum/ ventral region','right';'Thalamus','right';'Ventral group of the dorsal thalamus','right';'Ventral medial nucleus of the thalamus','right';'Thalamus/ polymodal association cortex related','right';'Intralaminar nuclei of the dorsal thalamus','right';'Central medial nucleus of the thalamus','right';'Paracentral nucleus','right';'Parafascicular nucleus','right';'Substantia nigra/ reticular part','right';'Midbrain raphe nuclei','right';'Dorsal nucleus raphe','right';'Primary auditory area','right';'Primary visual area','right';'Prelimbic area','right';'Infralimbic area','right';'Posterior parietal association areas','right';'Piriform area','right';'Hippocampal formation','right';'Lateral amygdalar nucleus','left';'Lateral amygdalar nucleus','right';'Basolateral amygdalar nucleus','left';'Basolateral amygdalar nucleus','right';'Striatum dorsal region','left';'Striatum dorsal region','right';'Striatum ventral region','left';'Striatum ventral region','right';'Nucleus accumbens','left';'Nucleus accumbens','right';'Anterior amygdalar area','left';'Anterior amygdalar area','right';'Central amygdalar nucleus','left';'Central amygdalar nucleus','right';'Medial amygdalar nucleus','left';'Medial amygdalar nucleus','right';'Pallidum','left';'Pallidum','right';'Pallidum/ dorsal region','left';'Pallidum/ dorsal region','right';'Globus pallidus/ internal segment','left';'Globus pallidus/ internal segment','right';'Bed nuclei of the stria terminalis','left';'Bed nuclei of the stria terminalis','right';'Medial habenula','left';'Medial habenula','right';'Lateral habenula','left';'Lateral habenula','right';'Hypothalamus','left';'Hypothalamus','right';'Subthalamic nucleus','left';'Subthalamic nucleus','right';'Zona incerta','left';'Zona incerta','right';'Ventral tegmental area','left';'Ventral tegmental area','right';'Substantia nigra/ compact part','left';'Substantia nigra/ compact part','right';'Cerebellum','left';'Cerebellum','right';'Cerebellar nuclei','left';'Cerebellar nuclei','right'};
 
+%Colocalization group summary - used to generate Figures 2H-K
 Group_summary = brain_regions;
 try
     for i = 3:length(Rabies_Summary.Coloc_Normalized.data)
@@ -161,3 +185,37 @@ Group_summary(contralateral_indices,:) = []
 
 %save to Summary struct
 Rabies_Summary.Coloc_Normalized.group_stats = Group_summary
+
+%Brainwide group summary - used to generate Figure S2E-H
+Group_summary = brain_regions;
+try
+    for i = 3:length(Rabies_Summary.Brainwide_Normalized.data)
+        D1_Healthy(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,D1_Healthy_columns}]);
+        D1_6OHDA(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,D1_6OHDA_columns}]);
+        D1_LID(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,D1_LID_columns}]);
+        A2a_Healthy(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,A2a_Healthy_columns}]);
+        A2a_6OHDA(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,A2a_6OHDA_columns}]);
+        A2a_LID(i-2,1)= mean([Rabies_Summary.Brainwide_Normalized.data{i,A2a_LID_columns}]);
+        TRAP_LID(i-2,1) = mean([Rabies_Summary.Brainwide_Normalized.data{i,TRAP_LID_columns}]);
+        
+        D1_Healthy(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,D1_Healthy_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,D1_Healthy_columns}]));
+        D1_6OHDA(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,D1_6OHDA_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,D1_6OHDA_columns}]));
+        D1_LID(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,D1_LID_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,D1_LID_columns}]));
+        A2a_Healthy(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,A2a_Healthy_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,A2a_Healthy_columns}]));
+        A2a_6OHDA(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,A2a_6OHDA_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,A2a_6OHDA_columns}]));
+        A2a_LID(i-2,2)= std([Rabies_Summary.Brainwide_Normalized.data{i,A2a_LID_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{i,A2a_LID_columns}]))
+        TRAP_LID(i-2,2) = std([Rabies_Summary.Brainwide_Normalized.data{i,TRAP_LID_columns}])/sqrt(length([Rabies_Summary.Brainwide_Normalized.data{TRAP_LID_columns}]))
+    end
+catch
+    sprintf('Animal did not meet inclusion criteria')
+end
+
+Group_summary(1,3:16) = {'D1_Healthy_Avg','D1_Healthy_SEM','D1_6OHDA_Avg','D1_6OHDA_SEM','D1_LID_Avg','D1_LID_SEM','A2a_Healthy_Avg','A2a_Healthy_SEM','A2a_6OHDA_Avg','A2a_6OHDA_SEM','A2a_LID_Avg','A2a_LID_SEM','TRAP_LID_Avg','TRAP_LID_SEM'}
+Group_summary(2:end,3:16) = num2cell([D1_Healthy,D1_6OHDA,D1_LID,A2a_Healthy,A2a_6OHDA,A2a_LID,TRAP_LID]);
+
+%remove contralateral hemisphere from Summary struct
+contralateral_indices = find(strcmp('left',[Group_summary(:,2)]))
+Group_summary(contralateral_indices,:) = []
+
+%save to Summary struct
+Rabies_Summary.Brainwide_Normalized.group_stats = Group_summary
